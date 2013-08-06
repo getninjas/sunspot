@@ -27,10 +27,10 @@ namespace :spec do
     ENV['BUNDLE_PATH']    = vendor_path(version)
     ENV['BUNDLE_GEMFILE'] = gemfile_path(version)
 
-    # unless File.exist?(ENV['BUNDLE_PATH'])
+    unless File.exist?(ENV['BUNDLE_PATH'])
       puts "Installing gems for Rails #{version} (this will only be done once)..."
       sh("bundle install #{ENV['BUNDLE_ARGS']}") || exit(1)
-    # end
+    end
   end
 
   task :generate_rails_app do
