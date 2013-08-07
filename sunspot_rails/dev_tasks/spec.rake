@@ -37,17 +37,13 @@ namespace :spec do
     app_path = rails_app_path(version)
 
     unless File.exist?(File.expand_path("config/environment.rb", app_path))
-      rails_cmd = "bundle exec rails _#{version}_"
-
       puts "Generating Rails #{version} application..."
-      sh("#{rails_cmd} new \"#{app_path}\" --force --skip-git --skip-javascript --skip-gemfile --skip-sprockets") || exit(1)
+      sh("bundle exec rails _#{version}_ new \"#{app_path}\" --force --skip-git --skip-javascript --skip-gemfile --skip-sprockets") || exit(1)
     end
   end
 
   task :setup_rails_app do
-    app_path = rails_app_path(version)
-
-    FileUtils.cp_r File.join(rails_template_path, "."), app_path
+    FileUtils.cp_r File.join(rails_template_path, "."), rails_app_path(version)
   end
 
   task :run do
