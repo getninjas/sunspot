@@ -21,7 +21,7 @@ namespace :spec do
     ENV['VERSION']
   end
 
-  task :run_with_rails => [:set_gemfile, :generate_rails_app, :setup_rails_app, :run]
+  task :run_with_rails => [:set_gemfile, :generate_rails_app, :initialize_database, :setup_rails_app, :run]
 
   task :set_gemfile do
     ENV['BUNDLE_PATH']    = vendor_path(version)
@@ -39,6 +39,13 @@ namespace :spec do
     unless File.exist?(File.expand_path("config/environment.rb", app_path))
       puts "Generating Rails #{version} application..."
       sh("bundle exec rails _#{version}_ new \"#{app_path}\" --force --skip-git --skip-javascript --skip-gemfile --skip-sprockets") || exit(1)
+    end
+  end
+
+  task :initialize_database do
+    if ENV['DB'] == 'postgres'
+      sh "psql -c 'DROP DATABASE IF EXISTS sunspot_test;'"
+      sh "psql -c 'create database sunspot_test;'"
     end
   end
 

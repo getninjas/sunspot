@@ -22,6 +22,9 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 # Load all shared examples
 Dir[File.expand_path("shared_examples/*.rb", File.dirname(__FILE__))].each {|f| require f}
 
+# Load the schema
+load File.join(ENV['RAILS_ROOT'], 'db', 'schema.rb')
+
 RSpec.configure do |config|
   # ## Mock Framework
   #
@@ -51,23 +54,15 @@ RSpec.configure do |config|
   config.order = "random"
 
   config.before(:each) do
-    load_schema
+    empty_tables
     Sunspot.remove_all!
   end  
 end
 
-def load_schema
-  stdout = $stdout
-  $stdout = StringIO.new # suppress output while building the schema
-  load File.join(ENV['RAILS_ROOT'], 'db', 'schema.rb')
-  $stdout = stdout
-end
-
-def silence_stderr(&block)
-  stderr = $stderr
-  $stderr = StringIO.new
-  yield
-  $stderr = stderr
+def empty_tables
+  ActiveRecord::Base.connection.tables.each do |table_name|
+    ActiveRecord::Base.connection.execute("DELETE FROM #{table_name}") unless table_name == 'schema_migrations'
+  end
 end
 
 # COMPATIBILITY: Rails 4 has deprecated the 'scoped' method in favour of 'all'
